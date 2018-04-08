@@ -1,10 +1,15 @@
 package br.com.sistemas.jd.mylibrary.mylibrary;
 
+import java.io.IOException;
 import java.util.List;
 
 import br.com.sistemas.jd.mylibrary.mylibrary.interfaces.ApiInterface;
 import br.com.sistemas.jd.mylibrary.mylibrary.model.Movie;
 import br.com.sistemas.jd.mylibrary.mylibrary.model.MoviesResponse;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -15,9 +20,26 @@ public class ApiClient {
     private static Retrofit retrofit = null;
     private List<Movie> movies;
 
+
     public static Retrofit getClient() {
+
+
+        /**
+         * Interceptor to http authorization by header. token.
+         */
+        OkHttpClient c = new OkHttpClient.Builder().addInterceptor(new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                String token = "546465465465asad4a56d4adasd4a6d46";
+                Request authorization = chain.request().newBuilder()
+                        .addHeader("Authorization", "Bearer " + token).build();
+                return chain.proceed(authorization);
+            }
+        }).build();
+
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
+                    .client(c)
                     .baseUrl(BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
@@ -25,15 +47,5 @@ public class ApiClient {
 
         return retrofit;
     }
-
-//    public static List<MoviesResponse> teste(String apiKey) {
-//
-//        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
-//        List<MoviesResponse> movies = apiInterface.getTopRatedMovies(apiKey);
-//        return movies;
-//
-//    }
-
-
 
 }
